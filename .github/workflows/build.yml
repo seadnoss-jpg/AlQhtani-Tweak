@@ -1,0 +1,40 @@
+name: Build Al-Qhtani Tweak
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: brew install make ldid xz
+
+    - name: Setup Theos
+      run: |
+        git clone --recursive https://github.com/theos/theos.git $HOME/theos
+        rm -rf $HOME/theos/sdks
+        git clone --depth 1 https://github.com/theos/sdks.git $HOME/theos/sdks
+        echo "THEOS=$HOME/theos" >> $GITHUB_ENV
+
+    - name: Build
+      run: |
+        export THEOS=$HOME/theos
+        make clean
+        make package FINALPACKAGE=1
+
+    - name: Upload .deb
+      uses: actions/upload-artifact@v4
+      with:
+        name: AlQhtani-deb
+        path: packages/*.deb
+
+    - name: Upload .dylib
+      uses: actions/upload-artifact@v4
+      with:
+        name: AlQhtani-dylib
+        path: .theos/obj/debug/Hoangxuantu.dylib
