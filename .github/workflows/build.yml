@@ -7,25 +7,20 @@ on:
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/theos/theos-ci:latest
+      options: --user root
+
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Install Dependencies
-      run: brew install make ldid xz
-
-    - name: Setup Theos
-      env:
-        THEOS: ${{ github.workspace }}/theos
-      run: |
-        git clone --recursive https://github.com/theos/theos.git $THEOS
-        rm -rf $THEOS/sdks
-        git clone --depth 1 https://github.com/theos/sdks.git $THEOS/sdks
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Build Tweak
-      env:
-        THEOS: ${{ github.workspace }}/theos
       run: |
+        export THEOS=/theos
         make clean
         make package FINALPACKAGE=1
 
@@ -40,5 +35,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: AlQhtani-dylib
-        path: .theos/obj/debug/Hoangxuantu.dylib
+        path: .theos/obj/debug/*.dylib
         if-no-files-found: warn
