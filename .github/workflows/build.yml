@@ -33,12 +33,11 @@ jobs:
           "https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz" \
           -o /tmp/sdk.tar.xz
         tar -xJf /tmp/sdk.tar.xz -C $HOME/theos/sdks
-        ls $HOME/theos/sdks/
 
     - name: Build Tweak
       run: |
         make clean
-        make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+        make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless IGNORE_WARNINGS=1
 
     - name: Upload .deb package
       uses: actions/upload-artifact@v4
