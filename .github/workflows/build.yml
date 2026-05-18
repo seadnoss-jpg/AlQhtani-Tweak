@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
     - name: Checkout
@@ -17,14 +17,12 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        sudo apt-get update -q
-        sudo apt-get install -y git make curl xz-utils fakeroot dpkg-dev zip
-        curl -L "https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_linux_x86_64" -o /usr/local/bin/ldid
-        sudo chmod +x /usr/local/bin/ldid
+        brew install ldid make xz
 
-    - name: Setup Theos
+    - name: Install Theos
       run: |
-        git clone --recursive https://github.com/theos/theos.git $HOME/theos
+        export THEOS=$HOME/theos
+        curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos | bash
         echo "THEOS=$HOME/theos" >> $GITHUB_ENV
         echo "THEOS_MAKE_PATH=$HOME/theos/makefiles" >> $GITHUB_ENV
 
