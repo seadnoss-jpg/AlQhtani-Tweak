@@ -17,25 +17,28 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y git make curl xz-utils pkg-config libssl-dev libbsd-dev fakeroot dpkg-dev ldid
+        sudo apt-get update -q
+        sudo apt-get install -y git make curl xz-utils pkg-config libssl-dev fakeroot dpkg-dev zip
+        # Install ldid from pre-built binary
+        curl -L "https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_linux_x86_64" -o /usr/local/bin/ldid
+        chmod +x /usr/local/bin/ldid
+        ldid --version || true
 
     - name: Setup Theos
       run: |
         export THEOS=$HOME/theos
         git clone --recursive https://github.com/theos/theos.git $THEOS
-        echo "THEOS=$THEOS" >> $GITHUB_ENV
+        echo "THEOS=$HOME/theos" >> $GITHUB_ENV
+        echo "THEOS_MAKE_PATH=$HOME/theos/makefiles" >> $GITHUB_ENV
 
     - name: Download iOS SDK
       run: |
         mkdir -p $HOME/theos/sdks
         curl -L --retry 3 "https://github.com/theos/sdks/releases/download/ios-16.2-fallback/iPhoneOS16.2.sdk.tar.xz" -o /tmp/sdk.tar.xz
-        tar -xf /tmp/sdk.tar.xz -C $HOME/theos/sdks
+        tar -xJf /tmp/sdk.tar.xz -C $HOME/theos/sdks
 
     - name: Build Tweak
       run: |
-        export THEOS=$HOME/theos
-        export THEOS_MAKE_PATH=$THEOS/makefiles
         make clean
         make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
 
